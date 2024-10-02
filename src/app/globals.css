@@ -2,26 +2,59 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+
+.pathList:hover {
+    @apply bg-gray-400;
+    transition: 0.3s ease;
+    @apply px-5 py-1
+}
+.pathList {
+    @apply px-5 py-1;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.pathList-sub-1 {
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease;
+    @apply px-5 py-1
+}
+.pathList-sub-1:hover {
+    @apply bg-gray-400;
+    transition: 0.3s ease;
+    @apply px-5 py-1;
+}
+.pathList-sub-2 {
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease;
+    @apply px-5 py-1
+}
+.pathList-sub-2:hover {
+    @apply bg-gray-400;
+    transition: 0.3s ease;
+    @apply px-5 py-1;
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+.pathFileBtn {
+    @apply px-5 py-1 my-1 shadow;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease;
 }
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+.pathFileBtn:hover {
+    @apply bg-gray-400;
+    transition: 0.3s ease;
+    @apply px-5 py-1;
+}
+.pathFileBtn.active {
+    @apply bg-gray-800 text-white;
+    transition: 0.3s ease;
+    @apply px-5 py-1;
 }

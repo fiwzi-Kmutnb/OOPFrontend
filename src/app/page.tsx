@@ -1,101 +1,193 @@
-import Image from "next/image";
+"use client"
+import dynamic from "next/dynamic";
+import {useEffect, useState} from "react";
+import axios from "@/utils/axios";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faFolder} from "@fortawesome/free-solid-svg-icons";
+import {faFile, faFolder as faRFolder} from "@fortawesome/free-regular-svg-icons";
+import Accordion from "@/component/Accordion";
+const DicomViewer = dynamic(() => import('@/component/Dcm'), {
+    loading: () => <p>Loading...</p>,
+    ssr: false,
+})
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+export default function Home(): JSX.Element {
+    const [path, setPath] = useState<pathFileData>({
+        file: {
+            test_images: [],
+            train_images: [],
+        },
+        fileCount: 0,
+        findFileCount: 0,
+    });
+    const [file, setFile] = useState<pathFile>({
+        train_images: [],
+        test_images: [],
+    });
+    const [selectedUrl, setSelectedUrl] = useState<string>('');
+    const [url, setUrl] = useState<string>('');
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    const [start, setStart] = useState(0);
+    const addpagePath = () => {
+        if(Math.floor(path.fileCount / 100) > start) {
+            setStart(start + 1)
+            getPath(start + 1)
+        }
+    }
+    const subpagePath = () => {
+        if(start > 0) {
+            setStart(start - 1)
+            getPath(start - 1)
+        }
+    }
+
+    useEffect(() => {
+        Promise.all([getPath()])
+    }, []);
+
+    const getPath = async (start: number = 0) => {
+        await axios.get('/path/list?start='+(start)).then((e) => {
+            setPath(e.data.data)
+        }).catch((e) => {
+            console.log(e)
+        })
+    }
+    const getDicom = async (path: string) => {
+        await axios.get('/file/list?path='+path).then((e) => {
+            setFile(e.data)
+        }).catch((e) => {
+            console.log(e)
+        })
+    }
+
+    const loadImage = (
+        key: string,
+        kkey: string,
+        e: string,
+        ee: string
+    ) => {
+        setUrl(`wadouri:${process.env.NEXT_PUBLIC_DCM_API_URL}${key}/${kkey}/${e}/${ee}`);
+        setSelectedUrl(`${key}/${kkey}/${e}/${ee}`);
+
+    }
+    const weelDetect = (weel: number) => {
+            const s = selectedUrl.split('/')
+            const fileP = s[3].split('.')[0];
+            const countF = file[s[0] as keyof pathFile]?.[s[1] as never]?.[s[2] as never]?.length + 1;
+            const fileN = weel > 0 ? Math.max(1,(Number(fileP) + 1) % countF) : Math.max(1,(Number(fileP) - 1) % countF);
+            setUrl(`wadouri:${process.env.NEXT_PUBLIC_DCM_API_URL}${s[0]}/${s[1]}/${s[2]}/${fileN}.dcm`);
+            setSelectedUrl(`${s[0]}/${s[1]}/${s[2]}/${fileN}.dcm`);
+    }
+
+    return (
+        <div>
+            <div className="grid grid-cols-12 gap-10">
+                <div className="col-span-3">
+                    <div className="bg-white shadow-2xl h-screen flex-col flex pt-2 max-h-screen">
+                        <div className="basis-11/12 pb-3 overflow-y-auto">
+                            {Object.entries(path.file).map(([key, value]) => {
+                                return (
+                                    <>
+                                        <div>
+                                            <Accordion btnClass={"pathList"} title={() => {
+                                                return (
+                                                    <>
+                                                        <FontAwesomeIcon icon={faFolder}/> &nbsp;{key}
+                                                    </>
+                                                )
+                                            }}>
+                                                <div className="ml-5 my-2">
+                                                    {
+                                                        Object.entries(value).map(([kkey, kvalue]) => {
+                                                            return (
+                                                                <>
+                                                                    <div>
+                                                                        <Accordion btnClass={"pathList-sub-1"}
+                                                                                   title={() => {
+                                                                                       return (
+                                                                                           <>
+
+                                                                                               <FontAwesomeIcon
+                                                                                                   icon={faRFolder}/> &nbsp;{kkey}
+                                                                                           </>
+                                                                                       )
+                                                                                   }}>
+                                                                            <div className="ml-5 my-2">
+                                                                                {
+                                                                                    (kvalue as string[]).map((e) => {
+                                                                                        return (
+                                                                                            <>
+                                                                                                <div>
+                                                                                                    <Accordion
+                                                                                                        btnClass={"pathList-sub-2"}
+                                                                                                        btnAction={() => {
+                                                                                                            getDicom(`/${key}/${kkey}/${e}`)
+                                                                                                        }}
+                                                                                                        title={() => {
+                                                                                                            return (
+                                                                                                                <>
+                                                                                                                    <FontAwesomeIcon
+                                                                                                                        icon={faRFolder}/> &nbsp;{e}
+                                                                                                                </>
+                                                                                                            )
+                                                                                                        }}>
+                                                                                                        {file[key as keyof pathFile]?.[kkey as never]?.[e]?.sort((a, b) => {
+                                                                                                            // Extract the numeric part from the filenames
+                                                                                                            const numA = parseInt(a.split('.')[0], 10);
+                                                                                                            const numB = parseInt(b.split('.')[0], 10);
+
+                                                                                                            return numA - numB; // Compare the numbers
+                                                                                                        })?.map((ee) => {
+                                                                                                            return (
+                                                                                                                <>
+                                                                                                                    <div className="ml-10">
+                                                                                                                        <button onClick={() => loadImage(key,kkey,e,ee)} className={`pathFileBtn ${ selectedUrl == `${key}/${kkey}/${e}/${ee}` ? 'active' : ''  }`}>
+                                                                                                                            <FontAwesomeIcon
+                                                                                                                                icon={faFile}/> &nbsp; {ee}
+                                                                                                                        </button>
+                                                                                                                    </div>
+                                                                                                                </>
+                                                                                                            )
+                                                                                                        })}
+                                                                                                    </Accordion>
+                                                                                                </div>
+                                                                                            </>
+                                                                                        )
+                                                                                    })
+                                                                                }
+                                                                            </div>
+                                                                            <hr className="mb-3"/>
+                                                                        </Accordion>
+
+                                                                    </div>
+                                                                </>
+                                                            )
+                                                        })
+                                                    }
+                                                </div>
+                                            </Accordion>
+
+                                        </div>
+                                    </>
+                                )
+                            })}
+                        </div>
+
+                        <div className="basis-1/12 bg-slate-800">
+                            <div className="flex mt-2 justify-center ">
+                                <button onClick={() => subpagePath()} className="bg-white p-3 hover:bg-slate-200">«</button>
+                                <div className="bg-white underline text-sm border p-3">{start+1}&nbsp;/&nbsp;{ Math.floor(path.fileCount / 100)+1}</div>
+                                <button onClick={() => addpagePath()} className="bg-white p-3  hover:bg-slate-200">»</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-span-9" onWheel={(e) => weelDetect(e.deltaY)}>
+                    {url.length > 0 && (
+                        <DicomViewer imageId={url}/>
+                    )}
+                </div>
+            </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+    )
 }
