@@ -6,10 +6,24 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faFolder} from "@fortawesome/free-solid-svg-icons";
 import {faFile, faFolder as faRFolder} from "@fortawesome/free-regular-svg-icons";
 import Accordion from "@/component/Accordion";
+import React from "react";
 const DicomViewer = dynamic(() => import('@/component/Dcm'), {
     loading: () => <p>Loading...</p>,
     ssr: false,
 })
+
+interface pathFileData {
+    file: pathFile;
+    fileCount: number;
+    findFileCount: number;
+}
+
+interface pathFile {
+    train_images: string[];
+    test_images: string[];
+}
+
+
 
 export default function Home(): JSX.Element {
     const [path, setPath] = useState<pathFileData>({
@@ -87,8 +101,7 @@ export default function Home(): JSX.Element {
                         <div className="basis-11/12 pb-3 overflow-y-auto">
                             {Object.entries(path.file).map(([key, value]) => {
                                 return (
-                                    <>
-                                        <div>
+                                        <div key={key}>
                                             <Accordion btnClass={"pathList"} title={() => {
                                                 return (
                                                     <>
@@ -114,7 +127,7 @@ export default function Home(): JSX.Element {
                                                                                    }}>
                                                                             <div className="ml-5 my-2">
                                                                                 {
-                                                                                    (kvalue as string[]).map((e) => {
+                                                                                    (kvalue as string[]).map((e: string) => {
                                                                                         return (
                                                                                             <>
                                                                                                 <div>
@@ -131,7 +144,7 @@ export default function Home(): JSX.Element {
                                                                                                                 </>
                                                                                                             )
                                                                                                         }}>
-                                                                                                        {file[key as keyof pathFile]?.[kkey as never]?.[e]?.sort((a, b) => {
+                                                                                                        {(file[key as keyof pathFile]?.[kkey as keyof typeof file[keyof pathFile]]?.[e as keyof typeof file[keyof pathFile][keyof typeof file[keyof pathFile]]] as string[])?.sort((a: string, b: string) => {
                                                                                                             // Extract the numeric part from the filenames
                                                                                                             const numA = parseInt(a.split('.')[0], 10);
                                                                                                             const numB = parseInt(b.split('.')[0], 10);
@@ -166,9 +179,7 @@ export default function Home(): JSX.Element {
                                                     }
                                                 </div>
                                             </Accordion>
-
                                         </div>
-                                    </>
                                 )
                             })}
                         </div>

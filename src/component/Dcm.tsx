@@ -53,7 +53,8 @@ function DicomViewer({ imageId }: { imageId: string }) {
     if (elementRef.current) {
       try {
         cornerstone.enable(elementRef.current);
-      } catch (e) {
+      } catch (e: unknown) {
+        console.error('เกิดปัญหา:', e);
         setError('ไม่สามารถเปิดรูปภาพได้');
       }
     }
@@ -62,7 +63,8 @@ function DicomViewer({ imageId }: { imageId: string }) {
       if (elementRef.current) {
         try {
           cornerstone.disable(elementRef.current);
-        } catch (e) {
+        } catch (e: unknown) {
+          console.error('เกิดปัญหา:', e);
         }
       }
     };
@@ -112,9 +114,11 @@ function DicomViewer({ imageId }: { imageId: string }) {
             windowCenter: image.windowCenter || getNumber('x00281050'),
           });
         } catch (error) {
+          console.error('เกิดปัญหา:', error);
           setError('ไม่สามารถโหลด MetaData ได้');
         }
       }).catch((error: never) => {
+        console.error('เกิดปัญหา:', error);
         setError('ระบบไฟล์ไม่รองรับ');
       });
     }
