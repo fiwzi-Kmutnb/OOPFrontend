@@ -193,7 +193,7 @@ export default function Home(): JSX.Element {
                         </div>
                     </div>
                 </div>
-                <div className="col-span-9" onWheel={(e) => weelDetect(e.deltaY)}>
+                <div className="col-span-9 flex h-screen justify-center items-center" onWheel={(e) => weelDetect(e.deltaY)}>
                     {url.length > 0 && (
                         <DicomViewer imageId={url}/>
                     )}

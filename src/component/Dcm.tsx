@@ -126,8 +126,8 @@ function DicomViewer({ imageId }: { imageId: string }) {
 
   return (
       <div className="p-4 bg-white flex justify-center items-center self-center h-screen text-black">
-        <div className="flex flex-wrap  gap-4">
-          <div className=" p-4 rounded-lg" style={{height: '500px', width: '500px'}}>
+        <div className="flex gap-10">
+          <div className=" p-4 rounded-lg" >
             {error ? (
                 <div className="text-white text-center h-full flex items-center justify-center">
                   {error}
@@ -137,7 +137,7 @@ function DicomViewer({ imageId }: { imageId: string }) {
             )}
           </div>
 
-          <div className="">
+          <div >
             {imageInfo && (
                 <div className="space-y-1 text-sm">
                   {Object.entries(imageInfo).map(([key, value]) => (
