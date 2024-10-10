@@ -7,6 +7,7 @@ import {faFolder} from "@fortawesome/free-solid-svg-icons";
 import {faFile} from "@fortawesome/free-regular-svg-icons";
 import Accordion from "@/component/Accordion";
 import React from "react";
+import { parse } from 'csv-parse'; 
 const DicomViewer = dynamic(() => import('@/component/Dcm'), {
     loading: () => <p>Loading...</p>,
     ssr: false,
@@ -30,6 +31,7 @@ export default function Home(): JSX.Element {
     const [file, setFile] = useState<listPath>({});
     const [selectedUrl, setSelectedUrl] = useState<string>('');
     const [url, setUrl] = useState<string>('');
+    const [typeShow, setTypeShow] = useState<string>('dcm');
 
     const [start, setStart] = useState(0);
     const addpagePath = () => {
@@ -110,14 +112,29 @@ export default function Home(): JSX.Element {
     const loadImage = (
         path: string
     ) => {
-        if(path.endsWith('.dcm'))
+        if(path.endsWith('.dcm')){
             setUrl(`wadouri:${process.env.NEXT_PUBLIC_DCM_API_URL}${path.substring(1)}`);
-        setSelectedUrl(path);
+            setSelectedUrl(path);
+            setTypeShow('dcm');
+        }
     }
     const getCsv = async (path: string) => {
         if(!path.endsWith('.csv'))
             return;
+        
         await axios.get('/csv?filename='+path).then((e) => {
+            setTypeShow('csv');
+            let records: any[] = [];
+            parse(e.data, {
+                columns: true,
+                skip_empty_lines: true
+            })
+            .on('readable', function(){
+                // let record;
+                // while (record = this.read()) {
+                //     records.push(record);
+                // }
+            })
             console.log(e.data)
             setSelectedUrl(path);
         }).catch((e) => {
@@ -299,11 +316,12 @@ export default function Home(): JSX.Element {
                             </div>
                         </div>
                     </div>
-                    <div className="col-span-9 flex h-screen justify-center items-center"
-                         onWheel={(e) => weelDetect(e.deltaY)}>
-                        {url.length > 0 && (
+                    <div className="col-span-9 flex h-screen justify-center items-center">
+                        <div onWheel={(e) => weelDetect(e.deltaY)}>
+                        {typeShow == 'dcm' && url.length > 0 && (
                             <DicomViewer imageId={url}/>
                         )}
+                        </div>
                     </div>
                 </div>
             </div>
