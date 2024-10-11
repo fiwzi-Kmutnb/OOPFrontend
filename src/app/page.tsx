@@ -5,10 +5,16 @@ import axios from "@/utils/axios";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faFolder} from "@fortawesome/free-solid-svg-icons";
 import {faFile} from "@fortawesome/free-regular-svg-icons";
-import Accordion from "@/component/Accordion";
+import Accordion from "@/components/Accordion";
 import React from "react";
 import { parse } from 'csv-parse'; 
-const DicomViewer = dynamic(() => import('@/component/Dcm'), {
+import CsvGraph from "@/components/CsvGraph";
+const DicomViewer = dynamic(() => import('@/components/Dcm'), {
+    loading: () => <p>Loading...</p>,
+    ssr: false,
+})
+
+const CsvViewer = dynamic(() => import('@/components/CsvGraph'), {
     loading: () => <p>Loading...</p>,
     ssr: false,
 })
@@ -118,25 +124,14 @@ export default function Home(): JSX.Element {
             setTypeShow('dcm');
         }
     }
+    const [csvData, setCsvData] = useState<string>("");
     const getCsv = async (path: string) => {
         if(!path.endsWith('.csv'))
             return;
-        
         await axios.get('/csv?filename='+path).then((e) => {
             setTypeShow('csv');
-            let records: any[] = [];
-            parse(e.data, {
-                columns: true,
-                skip_empty_lines: true
-            })
-            .on('readable', function(){
-                // let record;
-                // while (record = this.read()) {
-                //     records.push(record);
-                // }
-            })
-            console.log(e.data)
             setSelectedUrl(path);
+            setCsvData(e.data);
         }).catch((e) => {
             console.log(e)
         })
@@ -260,7 +255,7 @@ export default function Home(): JSX.Element {
     return (
         <>
             <div>
-                <div className="grid grid-cols-12 gap-10">
+                <div className="grid grid-cols-12">
                     <div className="col-span-3">
                         <div className="bg-white shadow-2xl h-screen flex-col flex pt-2 max-h-screen">
                             <div className="basis-11/12 pb-3 overflow-y-auto">
@@ -316,12 +311,15 @@ export default function Home(): JSX.Element {
                             </div>
                         </div>
                     </div>
-                    <div className="col-span-9 flex h-screen justify-center items-center">
-                        <div onWheel={(e) => weelDetect(e.deltaY)}>
+                    <div className="col-span-9">
                         {typeShow == 'dcm' && url.length > 0 && (
+                        <div onWheel={(e) => weelDetect(e.deltaY)} className="flex h-screen justify-center items-center">
                             <DicomViewer imageId={url}/>
-                        )}
                         </div>
+                    )}
+                        {typeShow == 'csv' && csvData.length > 0 && (
+                            <CsvGraph data={csvData}/>
+                        )}
                     </div>
                 </div>
             </div>

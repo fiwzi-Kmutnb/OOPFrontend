@@ -5,9 +5,9 @@ import axios from "@/utils/axios";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faFolder} from "@fortawesome/free-solid-svg-icons";
 import {faFile, faFolder as faRFolder} from "@fortawesome/free-regular-svg-icons";
-import Accordion from "@/component/Accordion";
+import Accordion from "@/components/Accordion";
 import React from "react";
-const DicomViewer = dynamic(() => import('@/component/Dcm'), {
+const DicomViewer = dynamic(() => import('@/components/Dcm'), {
     loading: () => <p>Loading...</p>,
     ssr: false,
 })

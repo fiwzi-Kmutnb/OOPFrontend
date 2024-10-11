@@ -28,7 +28,7 @@ const Accordion = ({ isToggle, title, children, btnClass,btnAction }: AccordionP
     };
 
     return (
-        <div className="w-full">
+        <div className="w-full ">
             <button onClick={handleToggle} className={`w-full ${btnClass || ''}`}>
                 <div className="flex gap-2 justify-between ">
                     <div className="flex gap-2">
