@@ -15,7 +15,11 @@ export default function CsvGraph({ data }: CsvGraphProps) {
         });
         setCsvData(d);
         checkVauleisAllString(d)
-
+        setPaginatedData([])
+        setPagination({
+            start: 0,
+            limit: 50
+        });
     }, [data])
     const [uniqueValues, setUniqueValues] = useState<any>(null);
     const uniqueValue = (data: any) => {
@@ -159,19 +163,46 @@ export default function CsvGraph({ data }: CsvGraphProps) {
                 acc[key] = value;
                 return acc;
             }, {});
-            const uniqueValuePercentage = Object.keys(sortedUniqueValue).reduce((acc: any, key: any) => {
-                acc[key] = Math.round((uniqueValueObject[key] / totalValues) * 100);
-                return acc;
-            }, {});
-            const topTwo = Object.entries(uniqueValuePercentage).slice(0, 2);
-            let obj: Record<string, number> = {};
-            topTwo.forEach(([key, value]) => {
-                obj[key] = value as number;
-            });
-            const countOthers = Object.entries(sortedUniqueValue).slice(2).reduce((acc, [_, value]) => acc + (value as number), 0);
-            obj[`Others (${countOthers})`] = Object.entries(uniqueValuePercentage).slice(2).reduce((acc, [_, value]) => acc + (value as number), 0);
-            return obj;
+        const uniqueValuePercentage = Object.keys(sortedUniqueValue).reduce((acc: any, key: any) => {
+            acc[key] = Math.round((uniqueValueObject[key] / totalValues) * 100);
+            return acc;
+        }, {});
+        const topTwo = Object.entries(uniqueValuePercentage).slice(0, 2);
+        let obj: Record<string, number> = {};
+        topTwo.forEach(([key, value]) => {
+            obj[key] = value as number;
+        });
+        const countOthers = Object.entries(sortedUniqueValue).slice(2).reduce((acc, [_, value]) => acc + (value as number), 0);
+        obj[`Others (${countOthers})`] = Object.entries(uniqueValuePercentage).slice(2).reduce((acc, [_, value]) => acc + (value as number), 0);
+        return obj;
+    }
+    const [pagination, setPagination] = useState<{
+        start: number,
+        limit: number
+    }>({
+        start: 0,
+        limit: 50
+    });
+    const [paginatedData, setPaginatedData] = useState<any>([]);
+    useEffect(() => {
+        if (csvData === null) return;
+        setPaginatedData([
+            ...paginatedData,
+            ...csvData.slice(pagination.start, pagination.limit)
+        ]);
+    }, [csvData, pagination])
+
+    useEffect(() => { 
+        window.onscroll = (e) => {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+                setPagination({
+                    start: pagination.start + 50,
+                    limit: pagination.limit + 50
+                });
+            }
         }
+    },[])
+
     return (
         <>
             <div className="w-full px-3 mt-4">
@@ -188,10 +219,15 @@ export default function CsvGraph({ data }: CsvGraphProps) {
                         </thead>
                         <tbody>
                             <tr>
-                                {csvData?.[0] && Object.keys(csvData?.[0])?.map((key) => {
-                                    if (csvData.length <= 3) {
+                                {csvData?.[0] && Object.keys(csvData?.[0])?.map((key,i) => {
+                                    if (csvData.length <= 3 || (i == 0 && keyisAllString[key])) {
                                         return (
-                                            <th>{csvData.length}</th>
+                                            <th>
+                                                <div className="text-center">
+                                                    {csvData.length}
+                                                    <p>Values</p>
+                                                    </div>
+                                            </th>
                                         )
                                     } else if (keyisAllString[key]) {
                                         const vdata = analyzeData(key);
@@ -203,7 +239,7 @@ export default function CsvGraph({ data }: CsvGraphProps) {
                                                             <p>{key} : {value}%</p>
                                                         </div>
                                                     )
-                                                })} 
+                                                })}
                                             </th>
                                         )
                                     } else {
@@ -215,7 +251,7 @@ export default function CsvGraph({ data }: CsvGraphProps) {
                                     }
                                 })}
                             </tr>
-                            {csvData?.map((item: any, index: number) => {
+                            {paginatedData?.map((item: any, index: number) => {
                                 return (
                                     <tr key={index}>
                                         {Object.keys(item)?.map((key) => {
