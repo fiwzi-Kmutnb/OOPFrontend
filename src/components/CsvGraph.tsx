@@ -92,7 +92,7 @@ export default function CsvGraph({ data }: CsvGraphProps) {
         const sortCsvList = numericData.sort((a: any, b: any) => Number(a[key]) - Number(b[key]));
         const startValue = Number(sortCsvList[0][key]);
         const endValue = Number(sortCsvList[sortCsvList.length - 1][key]);
-        const stepSize = Math.floor((endValue - startValue + 1) / numOfRanges);
+        const stepSize = (endValue - startValue + 1) / numOfRanges;
 
         let ranges: [number, number][] = [];
 
@@ -111,7 +111,7 @@ export default function CsvGraph({ data }: CsvGraphProps) {
         const sortCsvList = numericData.sort((a: any, b: any) => Number(a[key]) - Number(b[key]));
         const startValue = Number(sortCsvList[0][key]);
         const endValue = Number(sortCsvList[sortCsvList.length - 1][key]);
-        const stepSize = Math.floor((endValue - startValue + 1) / numOfRanges);
+        const stepSize = (endValue - startValue + 1) / numOfRanges;
 
         let ranges: [number, number][] = [];
 

@@ -1,5 +1,5 @@
 declare module 'cornerstone-core';
-declare module 'ornerstone-tools';
+declare module 'แornerstone-tools';
 declare module 'cornerstone-wado-image-loader';
 
 declare global {
