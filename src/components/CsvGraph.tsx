@@ -37,7 +37,6 @@ export default function CsvGraph({ data }: CsvGraphProps) {
             });
         })
         setUniqueValues(listKey);
-        // return listKey
     }
     const getUniqueValueByKey = (key: string) => {
         if (csvData === null) return;
