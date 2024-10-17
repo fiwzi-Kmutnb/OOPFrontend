@@ -58,3 +58,9 @@
     transition: 0.3s ease;
     @apply px-5 py-1;
 }
+
+li {
+    list-style-type: circle;
+    list-style-position: inside;
+    padding-right: 10px;
+}

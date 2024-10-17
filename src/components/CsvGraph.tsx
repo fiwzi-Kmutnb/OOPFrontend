@@ -91,6 +91,9 @@ export default function CsvGraph({ data }: CsvGraphProps) {
         const sortCsvList = numericData.sort((a: any, b: any) => Number(a[key]) - Number(b[key]));
         const startValue = Number(sortCsvList[0][key]);
         const endValue = Number(sortCsvList[sortCsvList.length - 1][key]);
+        if (startValue == endValue)
+            return [[startValue, endValue]];
+
         const stepSize = (endValue - startValue + 1) / numOfRanges;
 
         let ranges: [number, number][] = [];
@@ -110,6 +113,9 @@ export default function CsvGraph({ data }: CsvGraphProps) {
         const sortCsvList = numericData.sort((a: any, b: any) => Number(a[key]) - Number(b[key]));
         const startValue = Number(sortCsvList[0][key]);
         const endValue = Number(sortCsvList[sortCsvList.length - 1][key]);
+        if (startValue == endValue)
+            return [numericData.length];
+
         const stepSize = (endValue - startValue + 1) / numOfRanges;
 
         let ranges: [number, number][] = [];
@@ -193,6 +199,7 @@ export default function CsvGraph({ data }: CsvGraphProps) {
 
     useEffect(() => { 
         window.onscroll = (e) => {
+            console.log(e)
             if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
                 setPagination({
                     start: pagination.start + 50,

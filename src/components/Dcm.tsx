@@ -138,16 +138,16 @@ function DicomViewer({ imageId }: { imageId: string }) {
           </div>
 
           <div>
-            {imageInfo && (
-                <div className="space-y-1 text-sm">
-                  {Object.entries(imageInfo).map(([key, value]) => (
-                      <div key={key} className="flex">
-                        <span className="font-medium mr-2">{key}:</span>
-                        <span>{value.toString()}</span>
-                      </div>
-                  ))}
-                </div>
-            )}
+            {/*{imageInfo && (*/}
+            {/*    <div className="space-y-1 text-sm">*/}
+            {/*      {Object.entries(imageInfo).map(([key, value]) => (*/}
+            {/*          <div key={key} className="flex">*/}
+            {/*            <span className="font-medium mr-2">{key}:</span>*/}
+            {/*            <span>{value.toString()}</span>*/}
+            {/*          </div>*/}
+            {/*      ))}*/}
+            {/*    </div>*/}
+            {/*)}*/}
           </div>
         </div>
       </div>
